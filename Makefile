@@ -5,4 +5,8 @@ run: build
 	@./bin/api
 
 test:
-	@go test -v ./... 
+	@go test -v ./...
+
+seed:
+	go run scripts/seed.go
+
