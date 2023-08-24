@@ -2,11 +2,16 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"github.com/adityash1/go-reservation-api/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type Dropper interface {
+	Drop(ctx context.Context) error
+}
 
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
@@ -14,6 +19,7 @@ type UserStore interface {
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
 	UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error
+	Dropper
 }
 
 type MongoUserStore struct {
@@ -21,11 +27,16 @@ type MongoUserStore struct {
 	col    *mongo.Collection
 }
 
-func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+func NewMongoUserStore(client *mongo.Client, dbname string) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		col:    client.Database(DBNAME).Collection(userCol),
+		col:    client.Database(dbname).Collection(userCol),
 	}
+}
+
+func (s *MongoUserStore) Drop(ctx context.Context) error {
+	fmt.Println("dropping collection...")
+	return s.col.Drop(ctx)
 }
 
 func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {
