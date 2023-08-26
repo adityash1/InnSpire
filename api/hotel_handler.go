@@ -8,8 +8,7 @@ import (
 )
 
 type HotelHandler struct {
-	HotelStore db.HotelStore
-	roomStore  db.RoomStore
+	store *db.Store
 }
 
 type HotelQueryParams struct {
@@ -17,10 +16,9 @@ type HotelQueryParams struct {
 	Rating int
 }
 
-func NewHotelHandler(hs db.HotelStore, rs db.RoomStore) *HotelHandler {
+func NewHotelHandler(store *db.Store) *HotelHandler {
 	return &HotelHandler{
-		HotelStore: hs,
-		roomStore:  rs,
+		store: store,
 	}
 }
 
@@ -31,7 +29,7 @@ func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
 		return err
 	}
 	filter := bson.M{"hotelID": objId}
-	rooms, err := h.roomStore.GetRooms(c.Context(), filter)
+	rooms, err := h.store.Room.GetRooms(c.Context(), filter)
 	if err != nil {
 		return err
 	}
@@ -43,7 +41,7 @@ func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
 	if err := c.QueryParser(&qparams); err != nil {
 		return err
 	}
-	hotels, err := h.HotelStore.GetHotels(c.Context(), nil)
+	hotels, err := h.store.Hotel.GetHotels(c.Context(), nil)
 	if err != nil {
 		return err
 	}

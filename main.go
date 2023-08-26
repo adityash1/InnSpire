@@ -28,12 +28,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// handler initialisation
+	// handlers initialisation
 	var (
-		userHandler  = api.NewUserHandler(db.NewMongoUserStore(client, db.DB_NAME))
-		hotelStore   = db.NewMongoHotelStore(client)
-		roomStore    = db.NewMongoRoomStore(client, hotelStore)
-		hotelHandler = api.NewHotelHandler(hotelStore, roomStore)
+		hotelStore = db.NewMongoHotelStore(client)
+		roomStore  = db.NewMongoRoomStore(client, hotelStore)
+		userStore  = db.NewMongoUserStore(client)
+		store      = &db.Store{
+			Hotel: hotelStore,
+			User:  userStore,
+			Room:  roomStore,
+		}
+		userHandler  = api.NewUserHandler(userStore)
+		hotelHandler = api.NewHotelHandler(store)
 	)
 
 	app := fiber.New(config)
