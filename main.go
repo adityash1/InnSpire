@@ -48,6 +48,7 @@ func main() {
 
 	// hotel handlers
 	apiv1.Get("/hotel", hotelHandler.HandleGetHotels)
+	apiv1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRooms)
 
 	err = app.Listen(*port)
 	if err != nil {
