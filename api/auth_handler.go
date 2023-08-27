@@ -6,8 +6,10 @@ import (
 	"github.com/adityash1/go-reservation-api/db"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
+	"os"
+	"time"
 )
 
 type AuthHandler struct {
@@ -32,10 +34,31 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 		}
 		return err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(params.Password))
-	if err != nil {
+
+	if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
 		return fmt.Errorf("invalid credentials")
 	}
-	fmt.Println("authenticated ->", user)
-	return nil
+
+	resp := types.AuthResponse{
+		user,
+		createTokenFromUser(user),
+	}
+	return c.JSON(resp)
+}
+
+func createTokenFromUser(user *types.User) string {
+	now := time.Now()
+	expires := now.Add(time.Hour * 4).Unix()
+	claims := jwt.MapClaims{
+		"userID":  user.ID,
+		"email":   user.Email,
+		"expires": expires,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secret := os.Getenv("JWT_SECRET")
+	tokenStr, err := token.SignedString([]byte(secret))
+	if err != nil {
+		fmt.Println("fail to sign token with secret", err)
+	}
+	return tokenStr
 }
