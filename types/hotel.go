@@ -10,6 +10,11 @@ type Hotel struct {
 	Rating   int                  `bson:"rating" json:"rating"`
 }
 
+type HotelQueryParams struct {
+	Rooms  bool
+	Rating int
+}
+
 type Room struct {
 	ID      primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Size    string             `bson:"size" json:"size"`

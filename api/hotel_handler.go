@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/adityash1/go-reservation-api/db"
+	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -9,11 +10,6 @@ import (
 
 type HotelHandler struct {
 	store *db.Store
-}
-
-type HotelQueryParams struct {
-	Rooms  bool
-	Rating int
 }
 
 func NewHotelHandler(store *db.Store) *HotelHandler {
@@ -37,7 +33,7 @@ func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	var qparams HotelQueryParams
+	var qparams types.HotelQueryParams
 	if err := c.QueryParser(&qparams); err != nil {
 		return err
 	}

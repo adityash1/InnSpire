@@ -27,6 +27,32 @@ type UpdateUserParams struct {
 	LastName  string `json:"lastName"`
 }
 
+type AuthParams struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type User struct {
+	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	FirstName         string             `bson:"firstName" json:"firstName"`
+	LastName          string             `bson:"lastName" json:"lastName"`
+	Email             string             `bson:"email" json:"email"`
+	EncryptedPassword string             `bson:"encryptedPassword" json:"-"`
+}
+
+func NewUserFromParams(params CreateUserParams) (*User, error) {
+	encpw, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcryptCost)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		FirstName:         params.FirstName,
+		LastName:          params.LastName,
+		Email:             params.Email,
+		EncryptedPassword: string(encpw),
+	}, nil
+}
+
 func (p UpdateUserParams) ToBson() bson.M {
 	m := bson.M{}
 	if len(p.FirstName) > 0 {
@@ -58,25 +84,4 @@ func (params CreateUserParams) Validate() map[string]string {
 func isEmail(email string) bool {
 	emailAddress, err := mail.ParseAddress(email)
 	return err == nil && emailAddress.Address == email
-}
-
-type User struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	FirstName         string             `bson:"firstName" json:"firstName"`
-	LastName          string             `bson:"lastName" json:"lastName"`
-	Email             string             `bson:"email" json:"email"`
-	EncryptedPassword string             `bson:"encryptedPassword" json:"-"`
-}
-
-func NewUserFromParams(params CreateUserParams) (*User, error) {
-	encpw, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcryptCost)
-	if err != nil {
-		return nil, err
-	}
-	return &User{
-		FirstName:         params.FirstName,
-		LastName:          params.LastName,
-		Email:             params.Email,
-		EncryptedPassword: string(encpw),
-	}, nil
 }
