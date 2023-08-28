@@ -54,7 +54,7 @@ func TestPostUser(t *testing.T) {
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	var user types.User
 	err = json.NewDecoder(resp.Body).Decode(&user)
@@ -62,18 +62,18 @@ func TestPostUser(t *testing.T) {
 		return
 	}
 	if len(user.ID) == 0 {
-		t.Errorf("expecting a user to be set")
+		t.Fatalf("expecting a user to be set")
 	}
 	if len(user.EncryptedPassword) > 0 {
-		t.Errorf("expecting encryptedpassword not to be included in json")
+		t.Fatalf("expecting encryptedpassword not to be included in json")
 	}
 	if user.FirstName != params.FirstName {
-		t.Errorf("expected username %s but got %s", params.FirstName, user.FirstName)
+		t.Fatalf("expected username %s but got %s", params.FirstName, user.FirstName)
 	}
 	if user.LastName != params.LastName {
-		t.Errorf("expected lastname %s but got %s", params.LastName, user.LastName)
+		t.Fatalf("expected lastname %s but got %s", params.LastName, user.LastName)
 	}
 	if user.Email != params.Email {
-		t.Errorf("expected email %s but got %s", params.Email, user.Email)
+		t.Fatalf("expected email %s but got %s", params.Email, user.Email)
 	}
 }
