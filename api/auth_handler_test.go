@@ -2,9 +2,8 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"github.com/adityash1/go-reservation-api/db"
+	"github.com/adityash1/go-reservation-api/db/fixtures"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
 	"net/http"
@@ -13,36 +12,19 @@ import (
 	"testing"
 )
 
-func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
-	user, err := types.NewUserFromParams(types.CreateUserParams{
-		Email:     "some@test.com",
-		FirstName: "Aditya",
-		LastName:  "Sharma",
-		Password:  "password12345",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = userStore.InsertUser(context.TODO(), user)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return user
-}
-
 func TestAuthSuccess(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
-	insertedUser := insertTestUser(t, tdb.UserStore)
+	insertedUser := fixtures.AddUser(tdb.Store, "aditya", "sharma", false)
 
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.User)
 	app.Post("/auth", authHandler.HandleAuth)
 
 	params := types.AuthParams{
-		Email:    "some@test.com",
-		Password: "password12345",
+		Email:    "aditya@sharma.com",
+		Password: "aditya_sharma",
 	}
 	b, err := json.Marshal(params)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(b))
@@ -75,14 +57,14 @@ func TestAuthWithWrongPasswordFailure(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
-	insertTestUser(t, tdb.UserStore)
+	fixtures.AddUser(tdb.Store, "aditya", "sharma", false)
 
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.User)
 	app.Post("/auth", authHandler.HandleAuth)
 
 	params := types.AuthParams{
-		Email:    "some@test.com",
+		Email:    "aditya@sharma.com",
 		Password: "password",
 	}
 	b, err := json.Marshal(params)
