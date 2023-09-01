@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/adityash1/go-reservation-api/db"
+	"github.com/adityash1/go-reservation-api/db/fixtures"
 	"github.com/adityash1/go-reservation-api/types"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -82,19 +83,43 @@ func seedBooking(userID, roomID primitive.ObjectID, from, till time.Time) {
 }
 
 func main() {
-	aditya := seedUser(true, "Aditya", "Sharma", "aditya@gmail.com", "adi@123")
-	seedUser(false, "Yash", "Sharma", "yash123@gmail.com", "yash@123")
-	seedUser(false, "Tuntun", "Tiwari", "tuntun@gmail.com", "tuntun@123")
-
-	seedHotel("Raffles Istanbul", "Turkey", 4)
-	seedHotel("The Driskil", "US", 3)
-	hotel := seedHotel("Taj", "India", 5)
-
-	seedRoom("medium", true, 149.99, hotel.ID)
-	seedRoom("large", true, 299.99, hotel.ID)
-	room := seedRoom("small", false, 99.99, hotel.ID)
-
-	seedBooking(aditya.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 2))
+	var err error
+	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DB_URI))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Database(db.DB_NAME).Drop(ctx); err != nil {
+		log.Fatal(err)
+	}
+	hotelStore = db.NewMongoHotelStore(client)
+	store := &db.Store{
+		User:    db.NewMongoUserStore(client),
+		Room:    db.NewMongoRoomStore(client, hotelStore),
+		Booking: db.NewMongoBookingStore(client),
+		Hotel:   hotelStore,
+	}
+	user := fixtures.AddUser(store, "aditya", "sharma", false)
+	fmt.Println(user)
+	hotel := fixtures.AddHotel(store, "delight", "india", 4, nil)
+	fmt.Println(hotel)
+	room := fixtures.AddRoom(store, "large", true, 88.44, hotel.ID)
+	fmt.Println(room)
+	booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 5))
+	fmt.Println(booking)
+	return
+	//aditya := seedUser(true, "Aditya", "Sharma", "aditya@gmail.com", "adi@123")
+	//seedUser(false, "Yash", "Sharma", "yash123@gmail.com", "yash@123")
+	//seedUser(false, "Tuntun", "Tiwari", "tuntun@gmail.com", "tuntun@123")
+	//
+	//seedHotel("Raffles Istanbul", "Turkey", 4)
+	//seedHotel("The Driskil", "US", 3)
+	//hotel := seedHotel("Taj", "India", 5)
+	//
+	//seedRoom("medium", true, 149.99, hotel.ID)
+	//seedRoom("large", true, 299.99, hotel.ID)
+	//room := seedRoom("small", false, 99.99, hotel.ID)
+	//
+	//seedBooking(aditya.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 2))
 }
 
 func init() {
