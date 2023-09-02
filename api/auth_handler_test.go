@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/adityash1/go-reservation-api/db/fixtures"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
@@ -26,7 +27,7 @@ func TestAuthSuccess(t *testing.T) {
 		Email:    "aditya@sharma.com",
 		Password: "aditya_sharma",
 	}
-	b, err := json.Marshal(params)
+	b, _ := json.Marshal(params)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(b))
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := app.Test(req)
@@ -38,8 +39,7 @@ func TestAuthSuccess(t *testing.T) {
 		t.Fatalf("expected http status 200 but got %d", resp.StatusCode)
 	}
 	var authResp types.AuthResponse
-	err = json.NewDecoder(resp.Body).Decode(&authResp)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&authResp); err != nil {
 		t.Fatal(err)
 	}
 	if authResp.Token == " " {
@@ -48,6 +48,8 @@ func TestAuthSuccess(t *testing.T) {
 	// user also contains encrypted password so before comparing reset this
 	// because we do not return it in any JSON response
 	insertedUser.EncryptedPassword = ""
+	fmt.Println("inserted user ->", insertedUser)
+	fmt.Println("auth user ->", authResp.User)
 	if !reflect.DeepEqual(insertedUser, authResp.User) {
 		t.Fatalf("expected the user to be inserted user")
 	}
