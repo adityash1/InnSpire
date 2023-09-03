@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/adityash1/go-reservation-api/db/fixtures"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
@@ -48,8 +47,6 @@ func TestAuthSuccess(t *testing.T) {
 	// user also contains encrypted password so before comparing reset this
 	// because we do not return it in any JSON response
 	insertedUser.EncryptedPassword = ""
-	fmt.Println("inserted user ->", insertedUser)
-	fmt.Println("auth user ->", authResp.User)
 	if !reflect.DeepEqual(insertedUser, authResp.User) {
 		t.Fatalf("expected the user to be inserted user")
 	}

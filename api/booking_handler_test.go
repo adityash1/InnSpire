@@ -77,7 +77,7 @@ func TestUserGetBooking(t *testing.T) {
 		route          = app.Group("/", middleware.JWTAuthentication(tdb.User))
 		bookingHandler = NewBookingHandler(tdb.Store)
 	)
-	route.Get("/", bookingHandler.HandleGetBooking)
+	route.Get("/:id", bookingHandler.HandleGetBooking)
 	req := httptest.NewRequest("GET", fmt.Sprintf("/%s", booking.ID.Hex()), nil)
 	req.Header.Add("X-Api-Token", CreateTokenFromUser(user))
 	resp, err := app.Test(req)
@@ -88,7 +88,6 @@ func TestUserGetBooking(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&bookingResp); err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(bookingResp)
 	if bookingResp.ID != booking.ID {
 		t.Fatalf("expected %s got %s", booking.ID, bookingResp.ID)
 	}
@@ -97,7 +96,7 @@ func TestUserGetBooking(t *testing.T) {
 	}
 
 	// test for non-authorised user to get a booking info
-	req = httptest.NewRequest("GET", "/", nil)
+	req = httptest.NewRequest("GET", fmt.Sprintf("/%s", booking.ID.Hex()), nil)
 	req.Header.Add("X-Api-Token", CreateTokenFromUser(nonAuthUser))
 	resp, err = app.Test(req)
 	if err != nil {

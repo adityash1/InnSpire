@@ -15,7 +15,7 @@ type testdb struct {
 }
 
 func (tdb *testdb) teardown(t *testing.T) {
-	if err := tdb.client.Database(db.TEST_DB_NAME).Drop(context.TODO()); err != nil {
+	if err := tdb.client.Database(db.DB_NAME).Drop(context.TODO()); err != nil {
 		t.Fatal(err)
 	}
 }
