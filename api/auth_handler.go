@@ -53,8 +53,8 @@ func (h *AuthHandler) HandleAuth(c *fiber.Ctx) error {
 	}
 
 	resp := types.AuthResponse{
-		user,
-		CreateTokenFromUser(user),
+		User:  user,
+		Token: CreateTokenFromUser(user),
 	}
 	return c.JSON(resp)
 }

@@ -1,13 +1,11 @@
 package api
 
 import (
-	"errors"
 	"github.com/adityash1/go-reservation-api/db"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler struct {
@@ -27,10 +25,10 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 	)
 	objId, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	filter := bson.M{"_id": objId}
 	if err := h.userStore.UpdateUser(c.Context(), filter, params); err != nil {
@@ -50,7 +48,7 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	var params types.CreateUserParams
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	if errs := params.Validate(); len(errs) > 0 {
 		return c.JSON(errs)
@@ -70,10 +68,10 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.JSON(map[string]string{"error": "not found"})
-		}
-		return err
+		//if errors.Is(err, mongo.ErrNoDocuments) {
+		//	return c.JSON(map[string]string{"error": "not found"})
+		//}
+		return ErrResourceNotFound("user")
 	}
 	return c.JSON(user)
 }
