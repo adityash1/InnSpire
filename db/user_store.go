@@ -9,13 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Dropper interface {
-	Drop(ctx context.Context) error
-}
-
 type UserStore interface {
 	Dropper
-	UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error
+	UpdateUser(ctx context.Context, id string, params types.UpdateUserParams) error
 	DeleteUser(context.Context, string) error
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
@@ -40,13 +36,16 @@ func (s *MongoUserStore) Drop(ctx context.Context) error {
 	return s.col.Drop(ctx)
 }
 
-func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {
-	update := bson.D{
-		{
-			"$set", params.ToBson(),
-		},
+func (s *MongoUserStore) UpdateUser(ctx context.Context, id string, params types.UpdateUserParams) error {
+	userID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
 	}
-	_, err := s.col.UpdateOne(ctx, filter, update)
+	filter := bson.M{"_id": userID}
+	update := bson.M{
+		"$set": params.ToBson(),
+	}
+	_, err = s.col.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}

@@ -4,8 +4,6 @@ import (
 	"github.com/adityash1/go-reservation-api/db"
 	"github.com/adityash1/go-reservation-api/types"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserHandler struct {
@@ -23,15 +21,10 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 		params types.UpdateUserParams
 		userID = c.Params("id")
 	)
-	objId, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		return ErrInvalidID()
-	}
 	if err := c.BodyParser(&params); err != nil {
 		return ErrBadRequest()
 	}
-	filter := bson.M{"_id": objId}
-	if err := h.userStore.UpdateUser(c.Context(), filter, params); err != nil {
+	if err := h.userStore.UpdateUser(c.Context(), userID, params); err != nil {
 		return err
 	}
 	return c.JSON(map[string]string{"updated": userID})

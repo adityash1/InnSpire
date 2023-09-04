@@ -1,5 +1,7 @@
 package db
 
+import "context"
+
 const (
 	DB_URI       = "mongodb://localhost:27017"
 	TEST_DB_URI  = "mongodb://localhost:27017"
@@ -15,3 +17,9 @@ type Store struct {
 	Room    RoomStore
 	Booking BookingStore
 }
+
+type Dropper interface {
+	Drop(ctx context.Context) error
+}
+
+type Map map[string]any

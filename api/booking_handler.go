@@ -29,8 +29,8 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 	if booking.UserID != user.ID {
 		return ErrUnauthorized()
 	}
-	update := bson.M{"$set": bson.M{"cancelled": true}}
-	if err := h.store.Booking.UpdateBooking(c.Context(), booking.ID, update); err != nil {
+	update := db.Map{"$set": bson.M{"cancelled": true}}
+	if err := h.store.Booking.UpdateBooking(c.Context(), id, update); err != nil {
 		return err
 	}
 	return c.JSON(genericResp{
@@ -40,7 +40,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 }
 
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
-	bookings, err := h.store.Booking.GetBookings(c.Context(), bson.M{})
+	bookings, err := h.store.Booking.GetBookings(c.Context(), db.Map{})
 	if err != nil {
 		return ErrResourceNotFound("bookings")
 	}

@@ -77,6 +77,7 @@ func main() {
 
 	err = app.Listen(*port)
 	if err != nil {
+		log.Fatal(err)
 		return
 	}
 }

@@ -10,9 +10,9 @@ import (
 
 type BookingStore interface {
 	InsertBooking(context.Context, *types.Booking) (*types.Booking, error)
-	GetBookings(context.Context, bson.M) ([]*types.Booking, error)
+	GetBookings(context.Context, Map) ([]*types.Booking, error)
 	GetBookingByID(context.Context, string) (*types.Booking, error)
-	UpdateBooking(context.Context, primitive.ObjectID, bson.M) error
+	UpdateBooking(context.Context, string, Map) error
 }
 
 type MongoBookingStore struct {
@@ -38,7 +38,7 @@ func (s *MongoBookingStore) InsertBooking(ctx context.Context, booking *types.Bo
 	return booking, nil
 }
 
-func (s *MongoBookingStore) GetBookings(ctx context.Context, filter bson.M) ([]*types.Booking, error) {
+func (s *MongoBookingStore) GetBookings(ctx context.Context, filter Map) ([]*types.Booking, error) {
 	curr, err := s.col.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,12 @@ func (s *MongoBookingStore) GetBookingByID(ctx context.Context, id string) (*typ
 	return &booking, nil
 }
 
-func (s *MongoBookingStore) UpdateBooking(ctx context.Context, bookingID primitive.ObjectID, update bson.M) error {
-	_, err := s.col.UpdateByID(ctx, bookingID, update)
+func (s *MongoBookingStore) UpdateBooking(ctx context.Context, id string, update Map) error {
+	bookingID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": bookingID}
+	_, err = s.col.UpdateByID(ctx, filter, update)
 	return err
 }

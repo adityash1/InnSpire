@@ -83,13 +83,13 @@ func (params CreateUserParams) Validate() map[string]string {
 	if len(params.Password) < minPasswordLen {
 		errors["password"] = fmt.Sprintf("password length should be at least %d characters", minPasswordLen)
 	}
-	if !isEmail(params.Email) {
+	if !IsEmail(params.Email) {
 		errors["email"] = fmt.Sprintf("email %s is invalid", params.Email)
 	}
 	return errors
 }
 
-func isEmail(email string) bool {
+func IsEmail(email string) bool {
 	emailAddress, err := mail.ParseAddress(email)
 	return err == nil && emailAddress.Address == email
 }
