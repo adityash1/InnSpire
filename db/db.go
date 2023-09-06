@@ -1,14 +1,14 @@
 package db
 
-import "context"
+import (
+	"context"
+)
 
 const (
-	DB_URI       = "mongodb://localhost:27017"
-	TEST_DB_URI  = "mongodb://localhost:27017"
-	DB_NAME      = "hotel-reservation"
-	TEST_DB_NAME = "hotel-reservation-test"
-	userCol      = "users"
-	hotelCol     = "hotels"
+	MongoDBNameEnvName = "MONGO_DB_NAME"
+	MongoDBUrlEnvName  = "MONGO_DB_URL"
+	userCol            = "users"
+	hotelCol           = "hotels"
 )
 
 type Pagination struct {

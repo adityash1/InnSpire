@@ -6,21 +6,26 @@ import (
 	"github.com/adityash1/go-reservation-api/api"
 	"github.com/adityash1/go-reservation-api/db"
 	"github.com/adityash1/go-reservation-api/db/fixtures"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
 func main() {
-	ctx := context.Background()
-	var err error
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DB_URI))
+	var (
+		ctx         = context.Background()
+		MongoDBUrl  = os.Getenv(db.MongoDBUrlEnvName)
+		MongoDBName = os.Getenv(db.MongoDBNameEnvName)
+	)
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(MongoDBUrl))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := client.Database(db.DB_NAME).Drop(ctx); err != nil {
+	if err := client.Database(MongoDBName).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
 	hotelStore := db.NewMongoHotelStore(client)
@@ -42,5 +47,11 @@ func main() {
 		name := fmt.Sprintf("random hotel name %d", i)
 		location := fmt.Sprintf("location %d", i)
 		fixtures.AddHotel(store, name, location, rand.Intn(5)+1, nil)
+	}
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
 	}
 }
