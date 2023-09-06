@@ -27,7 +27,7 @@ func NewMongoBookingStore(client *mongo.Client) *MongoBookingStore {
 	dbname := os.Getenv(MongoDBNameEnvName)
 	return &MongoBookingStore{
 		client: client,
-		col:    client.Database(dbname).Collection("bookings"),
+		col:    client.Database(dbname).Collection(bookingCol),
 	}
 }
 

@@ -9,6 +9,8 @@ const (
 	MongoDBUrlEnvName  = "MONGO_DB_URL"
 	userCol            = "users"
 	hotelCol           = "hotels"
+	roomCol            = "rooms"
+	bookingCol         = "bookings"
 )
 
 type Pagination struct {

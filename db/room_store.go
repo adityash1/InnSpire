@@ -25,7 +25,7 @@ func NewMongoRoomStore(client *mongo.Client, hotelStore HotelStore) *MongoRoomSt
 	dbname := os.Getenv(MongoDBNameEnvName)
 	return &MongoRoomStore{
 		client:     client,
-		col:        client.Database(dbname).Collection("rooms"),
+		col:        client.Database(dbname).Collection(roomCol),
 		HotelStore: hotelStore,
 	}
 }
