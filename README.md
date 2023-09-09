@@ -1,4 +1,4 @@
-# Hotel Reservation API
+# InnSpire API
 
 This is a backend API for a hotel reservation system, written in Go. It provides endpoints for managing users, hotels, rooms, and bookings.
 
